@@ -1,15 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>EasyAbp.Abp.Trees</RootNamespace>
+    <RootNamespace></RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Localization\Trees\*.json" />
-    <Content Remove="Localization\Trees\*.json" />
+    <EmbeddedResource Include="EasyAbp\Abp\Trees\Localization\Trees\*.json" />
+    <Content Remove="EasyAbp\Abp\Trees\Localization\Trees\*.json" />
   </ItemGroup>
 
   <ItemGroup>

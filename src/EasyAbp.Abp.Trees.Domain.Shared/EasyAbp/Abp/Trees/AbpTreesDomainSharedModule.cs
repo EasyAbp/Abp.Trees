@@ -17,7 +17,7 @@ namespace EasyAbp.Abp.Trees
         {
             Configure<AbpVirtualFileSystemOptions>(options =>
             {
-                options.FileSets.AddEmbedded<AbpTreesDomainSharedModule>("EasyAbp.Abp.Trees");
+                options.FileSets.AddEmbedded<AbpTreesDomainSharedModule>();
             });
 
             Configure<AbpLocalizationOptions>(options =>
@@ -25,7 +25,7 @@ namespace EasyAbp.Abp.Trees
                 options.Resources
                     .Add<TreesResource>("en")
                     .AddBaseTypes(typeof(AbpValidationResource))
-                    .AddVirtualJson("/Localization/Trees");
+                    .AddVirtualJson("/EasyAbp/Abp/Trees/Localization");
             });
 
             Configure<AbpExceptionLocalizationOptions>(options =>

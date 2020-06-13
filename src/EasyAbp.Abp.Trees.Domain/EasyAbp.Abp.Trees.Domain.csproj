@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="EasyAbp.Abp.Trees\TreeDomainService.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Volo.Abp.Ddd.Domain" Version="2.9.0" />
     <ProjectReference Include="..\EasyAbp.Abp.Trees.Domain.Shared\EasyAbp.Abp.Trees.Domain.Shared.csproj" />
   </ItemGroup>
