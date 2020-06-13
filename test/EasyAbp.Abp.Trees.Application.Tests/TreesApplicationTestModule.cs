@@ -3,7 +3,7 @@
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(TreesApplicationModule),
+        typeof(AbpTreesApplicationModule),
         typeof(TreesDomainTestModule)
         )]
     public class TreesApplicationTestModule : AbpModule

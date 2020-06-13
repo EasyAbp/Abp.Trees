@@ -1,0 +1,54 @@
+name: publish to nuget
+on:
+  push:
+    branches:
+      - master # Default release branch
+jobs:
+  publish:
+    name: list on nuget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Publish
+      - name: publish EasyAbp.Abp.Trees.Application.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.Application/EasyAbp.Abp.Trees.Application.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+          
+      - name: publish EasyAbp.Abp.Trees.Application.Contracts.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.Application.Contracts/EasyAbp.Abp.Trees.Application.Contracts.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
+      - name: publish EasyAbp.Abp.Trees.Domain.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.Domain/EasyAbp.Abp.Trees.Domain.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
+      - name: publish EasyAbp.Abp.Trees.Domain.Shared.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.Domain.Shared/EasyAbp.Abp.Trees.Domain.Shared.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
+      - name: publish EasyAbp.Abp.Trees.EntityFrameworkCore.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.EntityFrameworkCore/EasyAbp.Abp.Trees.EntityFrameworkCore.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
+      - name: publish EasyAbp.Abp.Trees.HttpApi.dll
+        uses: brandedoutcast/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: src/EasyAbp.Abp.Trees.HttpApi/EasyAbp.Abp.Trees.HttpApi.csproj
+          VERSION_FILE_PATH: common.props
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}

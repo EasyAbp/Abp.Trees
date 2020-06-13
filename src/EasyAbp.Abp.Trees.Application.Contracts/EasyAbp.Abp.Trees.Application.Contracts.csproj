@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="EasyAbp.Abp.Trees\Dtos\FindTreeItemsInput.cs" />
-    <Compile Remove="EasyAbp.Abp.Trees\Dtos\GetTreeItemsInput.cs" />
-    <Compile Remove="EasyAbp.Abp.Trees\Dtos\IItemDto.cs" />
-    <Compile Remove="EasyAbp.Abp.Trees\Dtos\ItemsToTreeInput.cs" />
-    <Compile Remove="EasyAbp.Abp.Trees\Dtos\ItemToTreeInput.cs" />
+    <Compile Remove="EasyAbp\Abp\Trees\Dtos\FindTreeItemsInput.cs" />
+    <Compile Remove="EasyAbp\Abp\Trees\Dtos\GetTreeItemsInput.cs" />
+    <Compile Remove="EasyAbp\Abp\Trees\Dtos\IItemDto.cs" />
+    <Compile Remove="EasyAbp\Abp\Trees\Dtos\ItemsToTreeInput.cs" />
+    <Compile Remove="EasyAbp\Abp\Trees\Dtos\ItemToTreeInput.cs" />
   </ItemGroup>
 
   <ItemGroup>
