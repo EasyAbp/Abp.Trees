@@ -2,7 +2,7 @@
 
 namespace EasyAbp.Abp.Trees.Localization
 {
-    [LocalizationResourceName("Trees")]
+    [LocalizationResourceName("EasyAbpAbpTrees")]
     public class TreesResource
     {
         

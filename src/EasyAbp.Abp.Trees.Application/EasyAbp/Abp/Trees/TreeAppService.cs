@@ -12,6 +12,7 @@ using Volo.Abp.Application.Services;
 
 namespace EasyAbp.Abp.Trees
 {
+    //todo: merge to abstract class TreesAppService
     public class TreeAppService<TEntity, TGetOutputDto, TGetListInput, TCreateInput, TUpdateInput, TMoveInput>
         : CrudAppService<TEntity, TGetOutputDto, Guid, TGetListInput, TCreateInput, TUpdateInput>,
         ITreeAppService<TGetOutputDto, TGetListInput, TCreateInput, TUpdateInput, TMoveInput> where TEntity : class, ITree<TEntity>, IEntity<Guid>, new()

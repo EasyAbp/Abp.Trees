@@ -4,7 +4,7 @@ namespace EasyAbp.Abp.Trees.Authorization
 {
     public class TreesPermissions
     {
-        public const string GroupName = "Trees";
+        public const string GroupName = "EasyAbp.Abp.Trees";
 
         public static string[] GetAll()
         {
