@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>EasyAbp.Abp.Trees</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Http.Client" Version="2.9.0" />
+    <ProjectReference Include="..\EasyAbp.Abp.Trees.Application.Contracts\EasyAbp.Abp.Trees.Application.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

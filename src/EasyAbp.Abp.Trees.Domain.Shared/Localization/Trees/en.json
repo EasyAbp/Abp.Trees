@@ -1,0 +1,6 @@
+{
+  "culture": "en",
+  "texts": {
+    "EasyAbp.Abp.Trees:00001": "DuplicateDisplayNameWarning Text"
+  }
+}
