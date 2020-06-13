@@ -12,7 +12,7 @@ namespace EasyAbp.Abp.Trees
         typeof(AbpAutofacModule),
         typeof(AbpTestBaseModule),
         typeof(AbpAuthorizationModule),
-        typeof(TreesDomainModule)
+        typeof(AbpTreesDomainModule)
         )]
     public class TreesTestBaseModule : AbpModule
     {

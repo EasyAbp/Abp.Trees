@@ -7,10 +7,10 @@ using Volo.Abp.Modularity;
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore
 {
     [DependsOn(
-        typeof(TreesDomainModule),
+        typeof(AbpTreesDomainModule),
         typeof(AbpEntityFrameworkCoreModule)
     )]
-    public class TreesEntityFrameworkCoreModule : AbpModule
+    public class AbpTreesEntityFrameworkCoreModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {

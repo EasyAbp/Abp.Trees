@@ -6,17 +6,17 @@ using Volo.Abp.Authorization;
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(TreesDomainSharedModule),
+        typeof(AbpTreesDomainSharedModule),
         typeof(AbpDddApplicationContractsModule),
         typeof(AbpAuthorizationModule)
         )]
-    public class TreesApplicationContractsModule : AbpModule
+    public class AbpTreesApplicationContractsModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             Configure<AbpVirtualFileSystemOptions>(options =>
             {
-                options.FileSets.AddEmbedded<TreesApplicationContractsModule>("EasyAbp.Abp.Trees");
+                options.FileSets.AddEmbedded<AbpTreesApplicationContractsModule>("EasyAbp.Abp.Trees");
             });
         }
     }

@@ -64,7 +64,7 @@ namespace EasyAbp.Abp.Trees
         typeof(AbpTenantManagementApplicationModule),
         typeof(AbpTenantManagementHttpApiModule),
         typeof(AbpAspNetCoreAuthenticationJwtBearerModule),
-        typeof(TreesApplicationContractsModule)
+        typeof(AbpTreesApplicationContractsModule)
         )]
     public class TreesIdentityServerModule : AbpModule
     {

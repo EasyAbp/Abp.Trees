@@ -9,7 +9,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
 {
     [DependsOn(
         typeof(TreesTestBaseModule),
-        typeof(TreesEntityFrameworkCoreModule)
+        typeof(AbpTreesEntityFrameworkCoreModule)
         )]
     public class TreesEntityFrameworkCoreTestModule : AbpModule
     {

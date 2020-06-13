@@ -11,13 +11,13 @@ namespace EasyAbp.Abp.Trees
     [DependsOn(
         typeof(AbpValidationModule)
     )]
-    public class TreesDomainSharedModule : AbpModule
+    public class AbpTreesDomainSharedModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             Configure<AbpVirtualFileSystemOptions>(options =>
             {
-                options.FileSets.AddEmbedded<TreesDomainSharedModule>("EasyAbp.Abp.Trees");
+                options.FileSets.AddEmbedded<AbpTreesDomainSharedModule>("EasyAbp.Abp.Trees");
             });
 
             Configure<AbpLocalizationOptions>(options =>

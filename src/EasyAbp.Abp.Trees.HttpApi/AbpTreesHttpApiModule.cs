@@ -8,15 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(TreesApplicationContractsModule),
+        typeof(AbpTreesApplicationContractsModule),
         typeof(AbpAspNetCoreMvcModule))]
-    public class TreesHttpApiModule : AbpModule
+    public class AbpTreesHttpApiModule : AbpModule
     {
         public override void PreConfigureServices(ServiceConfigurationContext context)
         {
             PreConfigure<IMvcBuilder>(mvcBuilder =>
             {
-                mvcBuilder.AddApplicationPartIfNotExists(typeof(TreesHttpApiModule).Assembly);
+                mvcBuilder.AddApplicationPartIfNotExists(typeof(AbpTreesHttpApiModule).Assembly);
             });
         }
 

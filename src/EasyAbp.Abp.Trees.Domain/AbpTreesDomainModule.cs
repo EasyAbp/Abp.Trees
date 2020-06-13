@@ -3,9 +3,9 @@
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(TreesDomainSharedModule)
+        typeof(AbpTreesDomainSharedModule)
         )]
-    public class TreesDomainModule : AbpModule
+    public class AbpTreesDomainModule : AbpModule
     {
 
     }

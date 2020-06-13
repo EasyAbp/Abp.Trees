@@ -5,18 +5,18 @@ using Volo.Abp.Application;
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(TreesDomainModule),
-        typeof(TreesApplicationContractsModule),
+        typeof(AbpTreesDomainModule),
+        typeof(AbpTreesApplicationContractsModule),
         typeof(AbpDddApplicationModule),
         typeof(AbpAutoMapperModule)
         )]
-    public class TreesApplicationModule : AbpModule
+    public class AbpTreesApplicationModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             Configure<AbpAutoMapperOptions>(options =>
             {
-                options.AddMaps<TreesApplicationModule>(validate: true);
+                options.AddMaps<AbpTreesApplicationModule>(validate: true);
             });
         }
     }
