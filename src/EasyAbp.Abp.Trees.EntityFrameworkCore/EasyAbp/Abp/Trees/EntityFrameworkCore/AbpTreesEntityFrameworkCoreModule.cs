@@ -14,13 +14,6 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
-            context.Services.AddAbpDbContext<TreesDbContext>(options =>
-            {
-                /* Add custom repositories here. Example:
-                 * options.AddRepository<Question, EfCoreQuestionRepository>();
-                 */
-
-            });
         }
     }
 }

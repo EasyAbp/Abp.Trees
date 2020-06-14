@@ -31,8 +31,8 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
             var connection = new SqliteConnection("Data Source=:memory:");
             connection.Open();
 
-            new TreesDbContext(
-                new DbContextOptionsBuilder<TreesDbContext>().UseSqlite(connection).Options
+            new TestDbContext(
+                new DbContextOptionsBuilder<TestDbContext>().UseSqlite(connection).Options
             ).GetService<IRelationalDatabaseCreator>().CreateTables();
             
             return connection;

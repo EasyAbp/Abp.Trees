@@ -57,14 +57,12 @@ namespace EasyAbp.Abp.Trees
 
             return AbpEntityOptions.DefaultWithDetailsFunc(GetQueryable().Include(x => x.Children));
         }
-
         public async override Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             entity.Code = await GetNextChildCodeAsync(entity.ParentId);
             await ValidateEntityAsync(entity);
             return await base.InsertAsync(entity, autoSave, cancellationToken);
         }
-
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             await ValidateEntityAsync(entity);
@@ -81,7 +79,9 @@ namespace EasyAbp.Abp.Trees
 
             await base.DeleteAsync(id, autoSave, cancellationToken);
         }
-
+        
+        
+        
         public async Task MoveAsync(TEntity entity, Guid? parentId, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             if (entity.ParentId == parentId)
@@ -109,16 +109,12 @@ namespace EasyAbp.Abp.Trees
             }
             await base.UpdateAsync(entity, autoSave, cancellationToken);
         }
-
-
-
-        public async Task<TEntity> GetLastChildOrNullAsync(Guid? parentId)
+        protected virtual async Task<TEntity> GetLastChildOrNullAsync(Guid? parentId)
         {
-
             var children = await this.Where(tree => tree.ParentId == parentId).ToListAsync();
             return children.OrderBy(c => c.Code).LastOrDefault();
         }
-        public async Task<string> GetNextChildCodeAsync(Guid? parentId)
+        protected virtual async Task<string> GetNextChildCodeAsync(Guid? parentId)
         {
             var lastChild = await GetLastChildOrNullAsync(parentId);
             if (lastChild == null)
@@ -129,7 +125,7 @@ namespace EasyAbp.Abp.Trees
 
             return TreeCodeDomainService.CalculateNextCode(lastChild.Code);
         }
-        public async Task<string> GetCodeAsync(Guid id)
+        protected virtual async Task<string> GetCodeAsync(Guid id)
         {
             return (await base.GetAsync(id)).Code;
         }
@@ -149,7 +145,9 @@ namespace EasyAbp.Abp.Trees
         {
             if (!recursive)
             {
-                return await this.Where(x => x.ParentId == parentId).ToListAsync();
+                return await this.Where(x => x.ParentId == parentId)
+                    .OrderBy(x=>x.Code)
+                    .ToListAsync();
             }
 
             if (!parentId.HasValue)
@@ -159,8 +157,14 @@ namespace EasyAbp.Abp.Trees
 
             var code = await GetCodeAsync(parentId.Value);
 
-            return await this.Where(
-                ou => ou.Code.StartsWith(code) && ou.Id != parentId.Value).ToListAsync();
+            return await this.Where(ou => ou.Code.StartsWith(code) && ou.Id != parentId.Value)
+                .OrderBy(x=>x.Code)
+                .ToListAsync();
+        }
+
+        public Task BulkInsertAsync(TEntity tree, Action<TEntity> childrenAction = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }
