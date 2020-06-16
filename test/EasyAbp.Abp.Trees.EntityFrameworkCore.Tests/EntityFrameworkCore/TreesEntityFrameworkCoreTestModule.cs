@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Modularity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore
 {
@@ -15,6 +16,13 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
+            context.Services.AddAbpDbContext<TestDbContext>(options =>
+            {
+                options.AddDefaultRepositories(includeAllEntities: true);
+            });
+
+            context.Services.AddTreeRepository<TestDbContext>();
+
             var sqliteConnection = CreateDatabaseAndGetConnection();
 
             Configure<AbpDbContextOptions>(options =>
