@@ -9,6 +9,7 @@ namespace EasyAbp.Abp.Trees
         where TEntity : class, IEntity<Guid>
     {
         string Code { get; set; }
+        int Level { get; set; }
         Guid? ParentId { get; set; }
         IList<TEntity> Children { get; set; }
         string DisplayName { get; set; }

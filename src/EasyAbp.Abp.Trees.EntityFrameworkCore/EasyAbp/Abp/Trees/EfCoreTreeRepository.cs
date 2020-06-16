@@ -14,7 +14,7 @@ using Volo.Abp.EntityFrameworkCore;
 
 namespace EasyAbp.Abp.Trees
 {
-    public abstract class EfCoreTreeRepository<TDbContext, TEntity> : EfCoreRepository<TDbContext, TEntity, Guid>,
+    public class EfCoreTreeRepository<TDbContext, TEntity> : EfCoreRepository<TDbContext, TEntity, Guid>,
         ITreeRepository<TEntity> 
         where TDbContext : IEfCoreDbContext
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
@@ -57,12 +57,14 @@ namespace EasyAbp.Abp.Trees
 
             return AbpEntityOptions.DefaultWithDetailsFunc(GetQueryable().Include(x => x.Children));
         }
+        //todo: (feat) Add level property
         public async override Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             entity.Code = await GetNextChildCodeAsync(entity.ParentId);
             await ValidateEntityAsync(entity);
             return await base.InsertAsync(entity, autoSave, cancellationToken);
         }
+        //todo: (feat) Add level property
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             await ValidateEntityAsync(entity);
@@ -160,11 +162,6 @@ namespace EasyAbp.Abp.Trees
             return await this.Where(ou => ou.Code.StartsWith(code) && ou.Id != parentId.Value)
                 .OrderBy(x=>x.Code)
                 .ToListAsync();
-        }
-
-        public Task BulkInsertAsync(TEntity tree, Action<TEntity> childrenAction = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
         }
     }
 }
