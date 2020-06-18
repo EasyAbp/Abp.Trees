@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EasyAbp.Abp.Trees
 {
-    public class TreeCodeDomainService : Volo.Abp.DependencyInjection.ITransientDependency
+    public class TreeCodeGenerator : Volo.Abp.DependencyInjection.ITransientDependency
     {
         public const int CodeLength = 5;
 

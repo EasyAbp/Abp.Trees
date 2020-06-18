@@ -14,4 +14,13 @@ namespace EasyAbp.Abp.Trees
         IList<TEntity> Children { get; set; }
         string DisplayName { get; set; }
     }
+    public static class ITreeExtensions
+    {
+        public static void SetCode<TEntity>(this ITree<TEntity> entity,string code)
+            where TEntity : class, IEntity<Guid>
+        {
+            entity.Code = code;
+            entity.Level = entity.Code.Split('.').Length;
+        }
+    }
 }
