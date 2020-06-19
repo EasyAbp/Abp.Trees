@@ -16,6 +16,7 @@ namespace EasyAbp.Abp.Trees
         Task<TGetOutputDto> GetAsync(Guid id);
         Task<PagedResultDto<TGetOutputDto>> GetListAsync(TGetListInput input);
         Task<TGetOutputDto> UpdateAsync(Guid id, TUpdateInput input);
-        Task<TGetOutputDto> MoveAsync(TMoveInput input);
+        //todo:merge to update
+        //Task<TGetOutputDto> MoveAsync(TMoveInput input);
     }
 }

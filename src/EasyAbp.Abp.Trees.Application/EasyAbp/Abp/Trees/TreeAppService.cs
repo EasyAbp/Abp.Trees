@@ -33,20 +33,20 @@ namespace EasyAbp.Abp.Trees
         {
             this.TreeRepository = treeRepository;
         }
-        public virtual async Task<TGetOutputDto> MoveAsync(TMoveInput input)
-        {
-            var entity = await this.TreeRepository.GetAsync(input.Id);
+        //public virtual async Task<TGetOutputDto> MoveAsync(TMoveInput input)
+        //{
+        //    var entity = await this.TreeRepository.GetAsync(input.Id);
 
-            await CheckUpdatePolicyAsync();
+        //    await CheckUpdatePolicyAsync();
 
-            await TreeRepository.MoveAsync(entity, input.NewParentId);
+        //    await TreeRepository.MoveAsync(entity, input.NewParentId);
 
-            return MapToGetOutputDto(await this.TreeRepository.GetAsync(input.Id));
-        }
-        protected virtual async Task CheckMovePolicyAsync()
-        {
-            await CheckPolicyAsync(MovePolicyName);
-        }
+        //    return MapToGetOutputDto(await this.TreeRepository.GetAsync(input.Id));
+        //}
+        //protected virtual async Task CheckMovePolicyAsync()
+        //{
+        //    await CheckPolicyAsync(MovePolicyName);
+        //}
         protected virtual PagedResultDto<TDto> CreatePagedResultDto<TDto>((int TotalCount, System.Collections.Generic.List<TEntity> Entities) queryResult)
         {
             return new PagedResultDto<TDto>(
