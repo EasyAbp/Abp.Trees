@@ -14,14 +14,14 @@ namespace EasyAbp.Abp.Trees.Samples
             _treeRepository= GetRequiredService<IRepository<OrganizationUnit>>();
         }
 
-        [Fact]
-        public async Task Method1Async()
-        {
-            await WithUnitOfWorkAsync(() =>
-            {
-                var t = _treeRepository.ToList();
-            });
+        //[Fact]
+        //public async Task Method1Async()
+        //{
+        //    await WithUnitOfWorkAsync(() =>
+        //    {
+        //        var t = _treeRepository.ToList();
+        //    });
             
-        }
+        //}
     }
 }

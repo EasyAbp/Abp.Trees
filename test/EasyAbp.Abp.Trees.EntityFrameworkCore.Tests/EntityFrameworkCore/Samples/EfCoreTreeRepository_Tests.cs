@@ -2,7 +2,7 @@
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore.Samples
 {
-    public class SampleRepository_Tests : SampleRepository_Tests<TreesEntityFrameworkCoreTestModule>
+    public class EfCoreTreeRepository_Tests : EfCoreTreeRepository_Tests<TreesEntityFrameworkCoreTestModule>
     {
         /* Don't write custom repository tests here, instead write to
          * the base class.
