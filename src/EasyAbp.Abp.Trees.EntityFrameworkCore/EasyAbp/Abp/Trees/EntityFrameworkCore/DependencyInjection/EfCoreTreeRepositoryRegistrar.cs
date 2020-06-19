@@ -1,30 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Volo.Abp.Domain.Entities;
-using Volo.Abp.Domain.Repositories;
-using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 using Volo.Abp.Reflection;
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
 {
-    public class EfCoreTreeRepositoryRegistrar //: RepositoryRegistrarBase<AbpDbContextRegistrationOptions>
+    public class EfCoreTreeRepositoryRegistrar
     {
         public AbpTreesRepositoryRegistrationOptions Options { get; }
         public EfCoreTreeRepositoryRegistrar(AbpTreesRepositoryRegistrationOptions options)
         {
             Options = options;
         }
-        public void AddRepositories()
+        //todo:replace ITreeRepository<> with CustomRepositoriy
+        public void AddCustomRepositories()
         {
-            RegisterDefaultRepositories();
+
         }
-        protected virtual void RegisterDefaultRepositories()
+        public void AddRepositories()
         {
             foreach (var entityType in GetEntityTypes(Options.OriginalDbContextType))
             {
@@ -49,7 +46,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
 
         protected Type GetDefaultRepositoryImplementationType(Type entityType)
         {
-            return GetRepositoryType(Options.DefaultRepositoryDbContextType, entityType);
+            return typeof(EfCoreTreeRepository<,>).MakeGenericType(Options.DefaultRepositoryDbContextType, entityType);
         }
         protected IEnumerable<Type> GetEntityTypes(Type dbContextType)
         {
@@ -60,12 +57,6 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
                     typeof(IEntity).IsAssignableFrom(property.PropertyType.GenericTypeArguments[0])
                 select property.PropertyType.GenericTypeArguments[0];
         }
-
-        protected Type GetRepositoryType(Type dbContextType, Type entityType)
-        {
-            return typeof(EfCoreTreeRepository<,>).MakeGenericType(dbContextType, entityType);
-        }
-
         protected bool ShouldRegisterDefaultRepositoryFor(Type entityType)
         {
             var isTreeEntity = entityType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(EasyAbp.Abp.Trees.ITree<>));

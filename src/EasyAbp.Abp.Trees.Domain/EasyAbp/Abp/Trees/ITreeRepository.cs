@@ -12,9 +12,5 @@ namespace EasyAbp.Abp.Trees
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
         Task<List<TEntity>> FindChildrenAsync(Guid? parentId, bool recursive = false);
-        Task<string> GetCodeAsync(Guid id);
-        Task<TEntity> GetLastChildOrNullAsync(Guid? parentId);
-        Task<string> GetNextChildCodeAsync(Guid? parentId);
-        Task MoveAsync(TEntity entity, Guid? parentId, bool autoSave = false, CancellationToken cancellationToken = default);
     }
 }

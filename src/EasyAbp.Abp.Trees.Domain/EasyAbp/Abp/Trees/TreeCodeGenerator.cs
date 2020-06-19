@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EasyAbp.Abp.Trees
 {
-    public class TreeCodeDomainService : Volo.Abp.DependencyInjection.ITransientDependency
+    public class TreeCodeGenerator : Volo.Abp.DependencyInjection.ITransientDependency
     {
         public const int CodeLength = 5;
 
@@ -84,17 +84,17 @@ namespace EasyAbp.Abp.Trees
             }
 
             var parentCode = GetParentCode(code);
-            var lastUnitCode = GetLastUnitCode(code);
+            var lastUnitCode = GetLastCode(code);
 
             return AppendCode(parentCode, CreateCode(Convert.ToInt32(lastUnitCode) + 1));
         }
 
         /// <summary>
-        /// Gets the last unit code.
+        /// Gets the last code.
         /// Example: if code = "00019.00055.00001" returns "00001".
         /// </summary>
         /// <param name="code">The code.</param>
-        public string GetLastUnitCode(string code)
+        private string GetLastCode(string code)
         {
             if (code.IsNullOrEmpty())
             {
@@ -110,7 +110,7 @@ namespace EasyAbp.Abp.Trees
         /// Example: if code = "00019.00055.00001" returns "00019.00055".
         /// </summary>
         /// <param name="code">The code.</param>
-        public string GetParentCode(string code)
+        private string GetParentCode(string code)
         {
             if (code.IsNullOrEmpty())
             {

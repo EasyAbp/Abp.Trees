@@ -15,7 +15,6 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ConfigureTrees();
         }
     }
 }
