@@ -7,7 +7,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
 {
     public class TestDbContext : AbpDbContext<TestDbContext>
     {
-        public DbSet<OrganizationUnit> Regions { get; set; }
+        public DbSet<OrganizationUnit> OrganizationUnits { get; set; }
         public TestDbContext(DbContextOptions<TestDbContext> options) 
             : base(options)
         {

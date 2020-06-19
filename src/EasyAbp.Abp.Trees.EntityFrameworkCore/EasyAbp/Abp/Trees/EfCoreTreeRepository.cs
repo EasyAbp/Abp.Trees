@@ -5,10 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Volo.Abp;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -48,32 +46,21 @@ namespace EasyAbp.Abp.Trees
             : base(dbContextProvider)
         {
         }
-        private void traverseTree(TEntity parent, ICollection<TEntity> children)
+        private async Task traverseTreeAsync(TEntity parent, ICollection<TEntity> children, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             if (children == null || !children.Any())
             {
                 return;
             }
-
-            var duplicateNames = children
-                .GroupBy(x => x.DisplayName)
-                .Where(x => x.Count() > 1)
-                .Select(x => x.Key)
-                .ToList();
-
-            if (duplicateNames.Any())
-            {
-                throw new DuplicateDisplayNameException();
-            }
-
             var index = 0;
             foreach (var c in children)
             {
                 var code = TreeCodeGenerator.AppendCode(parent.Code, TreeCodeGenerator.CreateCode(++index));
                 c.SetCode(code);
                 TraverseTreeAction?.Invoke(c);
-                traverseTree(c, c.Children);
+                await traverseTreeAsync(c, c.Children, autoSave, cancellationToken);
             }
+            
         }
         protected virtual Action<TEntity> TraverseTreeAction
         {
@@ -94,23 +81,39 @@ namespace EasyAbp.Abp.Trees
         {
             var code = await GetNextChildCodeAsync(entity.ParentId);
             entity.SetCode(code);
-            await ValidateEntityAsync(entity);
-            traverseTree(entity, entity.Children);
-            return await base.InsertAsync(entity, autoSave, cancellationToken);
+            await traverseTreeAsync(entity, entity.Children, autoSave, cancellationToken);
+            
+            await DbContext.SaveChangesAsync();
+            await base.InsertAsync(entity, autoSave, cancellationToken);
+            return entity;//await base.InsertAsync(entity, autoSave, cancellationToken);
         }
         //todo: not allow modify children
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var entry = DbContext.Entry(entity);
-            if (entry.Property(x => x.ParentId).IsModified)
-            {
-                await MoveAsync(entity, entity.Id);
-            }
-            else
+            var oldEntity = await this.FindAsync(entity.Id);
+            if (oldEntity.ParentId == entity.Id)
             {
                 await base.UpdateAsync(entity, autoSave, cancellationToken);
+                return entity;
             }
-            await ValidateEntityAsync(entity);
+            var parentId = entity.ParentId;
+            //Should find children before Code change
+            var children = await FindChildrenAsync(entity.Id, true);
+
+            //Store old code of Tree
+            var oldCode = oldEntity.Code;
+
+            //Move Tree
+            var code = await GetNextChildCodeAsync(parentId);
+            entity.SetCode(code);
+
+            //Update Children Codes
+            foreach (var child in children)
+            {
+                var childCode = TreeCodeGenerator.AppendCode(entity.Code, TreeCodeGenerator.GetRelativeCode(child.Code, oldCode));
+                child.SetCode(childCode);
+            }
+            await base.UpdateAsync(entity, autoSave, cancellationToken);
             return entity;
         }
         public async override Task DeleteAsync(Guid id, bool autoSave = false, CancellationToken cancellationToken = default)
@@ -123,40 +126,6 @@ namespace EasyAbp.Abp.Trees
             }
 
             await base.DeleteAsync(id, autoSave, cancellationToken);
-        }
-        //If parentId changed,move it 
-        public virtual async Task MoveAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
-        {
-            var entry = DbContext.Entry(entity);
-            if (!entry.Property(x => x.ParentId).IsModified)
-                return;
-            var parentId = entity.ParentId;
-            //Should find children before Code change
-            var children = await FindChildrenAsync(entity.Id, true);
-
-            //Store old code of Tree
-            var oldCode = entry.Property(x => x.Code).OriginalValue;
-
-            //Move Tree
-            var code = await GetNextChildCodeAsync(parentId);
-            entity.SetCode(code);
-
-            await ValidateEntityAsync(entity);
-
-            //Update Children Codes
-            foreach (var child in children)
-            {
-                var childCode = TreeCodeGenerator.AppendCode(entity.Code, TreeCodeGenerator.GetRelativeCode(child.Code, oldCode));
-                child.SetCode(childCode);
-                await base.UpdateAsync(child, autoSave, cancellationToken);
-            }
-            await base.UpdateAsync(entity, autoSave, cancellationToken);
-        }
-        public virtual async Task MoveAsync(TEntity entity, Guid? parentId, bool autoSave = false, CancellationToken cancellationToken = default)
-        {
-            entity.ParentId = parentId;
-            await MoveAsync(entity, autoSave, cancellationToken);
-     
         }
         protected virtual async Task<TEntity> GetLastChildOrNullAsync(Guid? parentId)
         {
@@ -178,6 +147,7 @@ namespace EasyAbp.Abp.Trees
         {
             return (await base.GetAsync(id)).Code;
         }
+        //todo: move to Management or SubClass
         protected virtual async Task ValidateEntityAsync(TEntity entity)
         {
 
