@@ -1,6 +1,6 @@
-﻿using EasyAbp.Abp.Trees.Samples;
+﻿using EasyAbp.Abp.Trees.Test;
 
-namespace EasyAbp.Abp.Trees.EntityFrameworkCore.Samples
+namespace EasyAbp.Abp.Trees.EntityFrameworkCore.Test
 {
     public class EfCoreTreeRepository_Tests : EfCoreTreeRepository_Tests<TreesEntityFrameworkCoreTestModule>
     {

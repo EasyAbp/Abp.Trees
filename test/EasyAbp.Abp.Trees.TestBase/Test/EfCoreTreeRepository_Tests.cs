@@ -1,4 +1,4 @@
-﻿using EasyAbp.Abp.Trees.App;
+﻿using EasyAbp.Abp.Trees.TestApp.Domain;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Shouldly;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using Volo.Abp.Guids;
 using Volo.Abp.Modularity;
 using Xunit;
 
-namespace EasyAbp.Abp.Trees.Samples
+namespace EasyAbp.Abp.Trees.Test
 {
     /* Write your custom repository tests like that, in this project, as abstract classes.
      * Then inherit these abstract classes from EF Core & MongoDB test projects.

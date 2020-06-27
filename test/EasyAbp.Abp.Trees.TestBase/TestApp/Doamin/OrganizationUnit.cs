@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using Volo.Abp.Domain.Entities;
 
-namespace EasyAbp.Abp.Trees.App
+namespace EasyAbp.Abp.Trees.TestApp.Domain
 {
     public class OrganizationUnit : AggregateRoot<Guid>, ITree<OrganizationUnit>
     {
+        public OrganizationUnit() { }
         public OrganizationUnit(Guid id)
             : base(id)
         {

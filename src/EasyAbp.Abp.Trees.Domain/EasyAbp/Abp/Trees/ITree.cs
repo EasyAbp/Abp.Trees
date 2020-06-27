@@ -7,7 +7,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace EasyAbp.Abp.Trees
 {
-    public interface ITree<TEntity>: IEntity<Guid>
+    public interface ITree<TEntity> : IEntity<Guid>
         where TEntity : class, ITree<TEntity>
     {
         string Code { get; set; }

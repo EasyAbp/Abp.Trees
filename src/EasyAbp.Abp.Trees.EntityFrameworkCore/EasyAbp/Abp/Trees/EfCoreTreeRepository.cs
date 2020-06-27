@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.Guids;
 
 namespace EasyAbp.Abp.Trees
 {
@@ -20,6 +21,7 @@ namespace EasyAbp.Abp.Trees
     {
         protected TreeCodeGenerator TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
         private TreeCodeGenerator _treeCodeGenerator;
+        private readonly IGuidGenerator _guidGenerator;
 
         protected readonly object ServiceProviderLock = new object();
         protected TService LazyGetRequiredService<TService>(ref TService reference)
@@ -42,9 +44,11 @@ namespace EasyAbp.Abp.Trees
         }
 
         public EfCoreTreeRepository(
-            IDbContextProvider<TDbContext> dbContextProvider)
+            IDbContextProvider<TDbContext> dbContextProvider,
+            IGuidGenerator guidGenerator)
             : base(dbContextProvider)
         {
+            _guidGenerator = guidGenerator;
         }
         private async Task traverseTreeAsync(TEntity parent, ICollection<TEntity> children, bool autoSave = false, CancellationToken cancellationToken = default)
         {
@@ -55,6 +59,10 @@ namespace EasyAbp.Abp.Trees
             var index = 0;
             foreach (var c in children)
             {
+                if (c.Id == Guid.Empty)
+                {
+                    Volo.Abp.Domain.Entities.EntityHelper.TrySetId(c, () => _guidGenerator.Create());
+                }
                 var code = TreeCodeGenerator.AppendCode(parent.Code, TreeCodeGenerator.CreateCode(++index));
                 c.SetCode(code);
                 TraverseTreeAction?.Invoke(c);
@@ -79,6 +87,10 @@ namespace EasyAbp.Abp.Trees
         //to be inserted node will get code by db. and children nodes will be asseted by parent(if autoSave==false,modify code of children will error after insert)
         public async override Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
+            if (entity.Id == Guid.Empty)
+            {
+                Volo.Abp.Domain.Entities.EntityHelper.TrySetId(entity, () => _guidGenerator.Create());
+            }
             var code = await GetNextChildCodeAsync(entity.ParentId);
             entity.SetCode(code);
             await traverseTreeAsync(entity, entity.Children, autoSave, cancellationToken);
