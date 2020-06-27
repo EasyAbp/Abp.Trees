@@ -1,8 +1,5 @@
-﻿using System;
-using EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //TODO: Custom option action
             //optionsBuilder?.Invoke(options);
 
-            new EfCoreTreeRepositoryRegistrar(options).AddRepositories();
+            new EfCoreTreeRepositoryRegister(options).AddRepositories();
 
             return services;
         }

@@ -15,64 +15,27 @@ using Volo.Abp.Guids;
 namespace EasyAbp.Abp.Trees
 {
     public class EfCoreTreeRepository<TDbContext, TEntity> : EfCoreRepository<TDbContext, TEntity, Guid>,
-        ITreeRepository<TEntity> 
+        ITreeRepository<TEntity>
         where TDbContext : IEfCoreDbContext
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
-        protected TreeCodeGenerator TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
-        private TreeCodeGenerator _treeCodeGenerator;
-        private readonly IGuidGenerator _guidGenerator;
+        protected IGuidGenerator GuidGenerator { get; }
 
-        protected readonly object ServiceProviderLock = new object();
-        protected TService LazyGetRequiredService<TService>(ref TService reference)
-            => LazyGetRequiredService(typeof(TService), ref reference);
+        protected ITreeCodeGenerator TreeCodeGenerator { get; }
 
-        protected TRef LazyGetRequiredService<TRef>(Type serviceType, ref TRef reference)
+        protected virtual Action<TEntity> TraverseTreeAction
         {
-            if (reference == null)
-            {
-                lock (ServiceProviderLock)
-                {
-                    if (reference == null)
-                    {
-                        reference = (TRef)ServiceProvider.GetRequiredService(serviceType);
-                    }
-                }
-            }
-
-            return reference;
+            get { return (x) => { }; }
         }
 
         public EfCoreTreeRepository(
             IDbContextProvider<TDbContext> dbContextProvider,
-            IGuidGenerator guidGenerator)
+            IGuidGenerator guidGenerator,
+            ITreeCodeGenerator treeCodeGenerator)
             : base(dbContextProvider)
         {
-            _guidGenerator = guidGenerator;
-        }
-        private async Task traverseTreeAsync(TEntity parent, ICollection<TEntity> children, bool autoSave = false, CancellationToken cancellationToken = default)
-        {
-            if (children == null || !children.Any())
-            {
-                return;
-            }
-            var index = 0;
-            foreach (var c in children)
-            {
-                if (c.Id == Guid.Empty)
-                {
-                    Volo.Abp.Domain.Entities.EntityHelper.TrySetId(c, () => _guidGenerator.Create());
-                }
-                var code = TreeCodeGenerator.AppendCode(parent.Code, TreeCodeGenerator.CreateCode(++index));
-                c.SetCode(code);
-                TraverseTreeAction?.Invoke(c);
-                await traverseTreeAsync(c, c.Children, autoSave, cancellationToken);
-            }
-            
-        }
-        protected virtual Action<TEntity> TraverseTreeAction
-        {
-            get { return (x) => { }; }
+            GuidGenerator = guidGenerator;
+            TreeCodeGenerator = treeCodeGenerator;
         }
 
         public override IQueryable<TEntity> WithDetails()
@@ -84,53 +47,97 @@ namespace EasyAbp.Abp.Trees
 
             return AbpEntityOptions.DefaultWithDetailsFunc(GetQueryable().Include(x => x.Children));
         }
-        //to be inserted node will get code by db. and children nodes will be asseted by parent(if autoSave==false,modify code of children will error after insert)
-        public async override Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
+
+        public async Task<List<TEntity>> GetChildrenAsync(Guid parentId, bool includeDetails = true, bool recursive = false, CancellationToken cancellationToken = default)
+        {
+            if (!recursive)
+            {
+                return includeDetails
+                    ? await WithDetails()
+                        .Where(x => x.ParentId == parentId)
+                        .OrderBy(x => x.Code)
+                        .ToListAsync(GetCancellationToken(cancellationToken))
+                    : await GetQueryable()
+                        .Where(x => x.ParentId == parentId)
+                        .OrderBy(x => x.Code)
+                        .ToListAsync(GetCancellationToken(cancellationToken));
+            }
+
+            var code = await GetCodeAsync(parentId, GetCancellationToken(cancellationToken));
+
+            return includeDetails
+                ? await WithDetails()
+                    .Where(x => x.Code.StartsWith(code) && x.Id != parentId)
+                    .OrderBy(x => x.Code)
+                    .ToListAsync(GetCancellationToken(cancellationToken))
+                : await GetQueryable()
+                    .Where(x => x.Code.StartsWith(code) && x.Id != parentId)
+                    .OrderBy(x => x.Code)
+                    .ToListAsync(GetCancellationToken(cancellationToken));
+        }
+
+        /// <summary>
+        /// The code of node inserted will update by database. and it's children will be inserted by parent (when autoSave is false, the modification of code of children will cause error after insert)
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="autoSave"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public override async Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             if (entity.Id == Guid.Empty)
             {
-                Volo.Abp.Domain.Entities.EntityHelper.TrySetId(entity, () => _guidGenerator.Create());
+                EntityHelper.TrySetId(entity, () => GuidGenerator.Create());
             }
-            var code = await GetNextChildCodeAsync(entity.ParentId);
+
+            var code = await GetNextChildCodeAsync(entity.ParentId, GetCancellationToken(cancellationToken));
             entity.SetCode(code);
-            await traverseTreeAsync(entity, entity.Children, autoSave, cancellationToken);
-            
-            await DbContext.SaveChangesAsync();
-            await base.InsertAsync(entity, autoSave, cancellationToken);
+
+            await TraverseTreeAsync(entity, entity.Children, autoSave, GetCancellationToken(cancellationToken));
+            if (autoSave)
+            {
+                await DbContext.SaveChangesAsync(GetCancellationToken(cancellationToken));
+            }
+
+            entity = await base.InsertAsync(entity, autoSave, GetCancellationToken(cancellationToken));
             return entity;//await base.InsertAsync(entity, autoSave, cancellationToken);
         }
+
         //todo: not allow modify children
-        public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
+        public override async Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var oldEntity = await this.FindAsync(entity.Id);
+            var oldEntity = await FindAsync(entity.Id, cancellationToken: cancellationToken);
             if (oldEntity.ParentId == entity.Id)
             {
                 await base.UpdateAsync(entity, autoSave, cancellationToken);
                 return entity;
             }
+
             var parentId = entity.ParentId;
             //Should find children before Code change
-            var children = await FindChildrenAsync(entity.Id, true);
+            var children = await GetChildrenAsync(entity.Id, true, cancellationToken: GetCancellationToken(cancellationToken));
 
             //Store old code of Tree
             var oldCode = oldEntity.Code;
 
             //Move Tree
-            var code = await GetNextChildCodeAsync(parentId);
+            var code = await GetNextChildCodeAsync(parentId, GetCancellationToken(cancellationToken));
             entity.SetCode(code);
 
             //Update Children Codes
             foreach (var child in children)
             {
-                var childCode = TreeCodeGenerator.AppendCode(entity.Code, TreeCodeGenerator.GetRelativeCode(child.Code, oldCode));
+                var childCode = TreeCodeGenerator.Append(entity.Code, TreeCodeGenerator.GetRelative(child.Code, oldCode));
                 child.SetCode(childCode);
             }
+
             await base.UpdateAsync(entity, autoSave, cancellationToken);
             return entity;
         }
-        public async override Task DeleteAsync(Guid id, bool autoSave = false, CancellationToken cancellationToken = default)
+
+        public override async Task DeleteAsync(Guid id, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var children = await FindChildrenAsync(id, true);
+            var children = await GetChildrenAsync(id, true, cancellationToken: GetCancellationToken(cancellationToken));
 
             foreach (var child in children)
             {
@@ -139,58 +146,74 @@ namespace EasyAbp.Abp.Trees
 
             await base.DeleteAsync(id, autoSave, cancellationToken);
         }
-        protected virtual async Task<TEntity> GetLastChildOrNullAsync(Guid? parentId)
+
+        protected virtual async Task<string> GetNextChildCodeAsync(Guid? parentId, CancellationToken cancellationToken = default)
         {
-            var children = await this.Where(tree => tree.ParentId == parentId).ToListAsync();
-            return children.OrderBy(c => c.Code).LastOrDefault();
-        }
-        protected virtual async Task<string> GetNextChildCodeAsync(Guid? parentId)
-        {
-            var lastChild = await GetLastChildOrNullAsync(parentId);
-            if (lastChild == null)
+            if (!parentId.HasValue)
             {
-                var parentCode = parentId != null ? await GetCodeAsync(parentId.Value) : null;
-                return TreeCodeGenerator.AppendCode(parentCode, TreeCodeGenerator.CreateCode(1));
+                return TreeCodeGenerator.Create(1);
             }
 
-            return TreeCodeGenerator.CalculateNextCode(lastChild.Code);
+            var children = await GetChildrenAsync(
+                parentId.Value,
+                false,
+                false,
+                GetCancellationToken(cancellationToken));
+            var lastChild = children.LastOrDefault();
+
+            if (lastChild != null)
+            {
+                return TreeCodeGenerator.Next(lastChild.Code);
+            }
+            else
+            {
+                var parentCode = await GetCodeAsync(parentId.Value, GetCancellationToken(cancellationToken));
+                return TreeCodeGenerator.Append(parentCode, TreeCodeGenerator.Create(1));
+            }
         }
-        protected virtual async Task<string> GetCodeAsync(Guid id)
+
+        protected virtual async Task<string> GetCodeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return (await base.GetAsync(id)).Code;
+            var entity = await GetAsync(id, false, GetCancellationToken(cancellationToken));
+            return entity.Code;
         }
+
         //todo: move to Management or SubClass
         protected virtual async Task ValidateEntityAsync(TEntity entity)
         {
-
-            var siblings = (await FindChildrenAsync(entity.ParentId))
-                .Where(ou => ou.Id != entity.Id)
-                .ToList();
-
-            if (siblings.Any(ou => ou.DisplayName == entity.DisplayName))
+            if (entity.ParentId.HasValue)
             {
-                throw new DuplicateDisplayNameException();
+                var siblings = (await GetChildrenAsync(entity.ParentId.Value))
+                    .Where(ou => ou.Id != entity.Id)
+                    .ToList();
+
+                if (siblings.Any(x => x.DisplayName == entity.DisplayName))
+                {
+                    throw new DuplicateDisplayNameException();
+                }
             }
         }
-        public async Task<List<TEntity>> FindChildrenAsync(Guid? parentId, bool recursive = false)
+
+        protected virtual async Task TraverseTreeAsync(TEntity parent, ICollection<TEntity> children, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            if (!recursive)
+            if (children == null || !children.Any())
             {
-                return await this.Where(x => x.ParentId == parentId)
-                    .OrderBy(x=>x.Code)
-                    .ToListAsync();
+                return;
             }
 
-            if (!parentId.HasValue)
+            var index = 0;
+            foreach (var c in children)
             {
-                return await this.ToListAsync();
+                if (c.Id == Guid.Empty)
+                {
+                    EntityHelper.TrySetId(c, () => GuidGenerator.Create());
+                }
+
+                var code = TreeCodeGenerator.Append(parent.Code, TreeCodeGenerator.Create(++index));
+                c.SetCode(code);
+                TraverseTreeAction?.Invoke(c);
+                await TraverseTreeAsync(c, c.Children, autoSave, cancellationToken);
             }
-
-            var code = await GetCodeAsync(parentId.Value);
-
-            return await this.Where(ou => ou.Code.StartsWith(code) && ou.Id != parentId.Value)
-                .OrderBy(x=>x.Code)
-                .ToListAsync();
         }
     }
 }
