@@ -1,4 +1,4 @@
-﻿using EasyAbp.Abp.Trees.App;
+﻿using EasyAbp.Abp.Trees.TestApp.Domain;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Shouldly;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using Volo.Abp.Guids;
 using Volo.Abp.Modularity;
 using Xunit;
 
-namespace EasyAbp.Abp.Trees.Samples
+namespace EasyAbp.Abp.Trees.Test
 {
     /* Write your custom repository tests like that, in this project, as abstract classes.
      * Then inherit these abstract classes from EF Core & MongoDB test projects.
@@ -53,7 +53,7 @@ namespace EasyAbp.Abp.Trees.Samples
         }
 
         [Fact]
-        public async Task InsertWithChildAsync()
+        public async Task InsertWithChildTestAsync()
         {
             var root = createTestData();
 
@@ -62,10 +62,25 @@ namespace EasyAbp.Abp.Trees.Samples
             list.Count.ShouldBe(61);
             var afterInsertedRoot = list.Single(x => x.Id == root.Id);
             afterInsertedRoot.ShouldNotBeNull();
-            
         }
         [Fact]
-        public async Task UpdateWithMoveAsync()
+        public async Task InsertTwoRootsTestAsync()
+        {
+            var firstRoot = createTestData();
+            var secondRoot = createTestData();
+
+            await _repository.InsertAsync(firstRoot, true);
+            await _repository.InsertAsync(secondRoot, true);
+
+            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+
+            var roots = list.Where(x => x.ParentId == null).ToList();
+            roots.Count().ShouldBe(2);
+            roots[0].Code.ShouldNotBe(roots[1].Code);
+        }
+
+        [Fact]
+        public async Task UpdateWithMoveTestAsync()
         {
             await WithUnitOfWorkAsync(async () =>
                  {
@@ -88,5 +103,22 @@ namespace EasyAbp.Abp.Trees.Samples
 
                  });
         }
+
+        [Fact]
+        public async Task DeleteTestAsync()
+        {
+            var firstRoot = createTestData();
+            await _repository.InsertAsync(firstRoot, true);
+
+
+            var toDeleteNode = firstRoot.Children.FirstOrDefault();
+
+            await _repository.DeleteAsync(toDeleteNode);
+
+            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            list.Count().ShouldBe(55);
+        }
+
+
     }
 }

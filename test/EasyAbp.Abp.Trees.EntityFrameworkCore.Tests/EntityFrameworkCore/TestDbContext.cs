@@ -1,4 +1,4 @@
-﻿using EasyAbp.Abp.Trees.App;
+﻿using EasyAbp.Abp.Trees.TestApp.Domain;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Modeling;

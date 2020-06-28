@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities;
@@ -11,6 +10,6 @@ namespace EasyAbp.Abp.Trees
     public interface ITreeRepository<TEntity> : IRepository<TEntity, Guid>
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
-        Task<List<TEntity>> FindChildrenAsync(Guid? parentId, bool recursive = false);
+        Task<List<TEntity>> GetChildrenAsync(Guid? parentId, bool includeDetails = true, bool recursive = false, CancellationToken cancellationToken = default);
     }
 }

@@ -21,6 +21,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
         {
 
         }
+
         public void AddRepositories()
         {
             foreach (var entityType in GetEntityTypes(Options.OriginalDbContextType))
@@ -33,6 +34,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
                 RegisterDefaultRepository(entityType);
             }
         }
+
         protected void RegisterDefaultRepository(Type entityType)
         {
             var repositoryImplementationType = GetDefaultRepositoryImplementationType(entityType);
@@ -48,6 +50,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
         {
             return typeof(EfCoreTreeRepository<,>).MakeGenericType(Options.DefaultRepositoryDbContextType, entityType);
         }
+
         protected IEnumerable<Type> GetEntityTypes(Type dbContextType)
         {
             return
@@ -57,6 +60,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
                     typeof(IEntity).IsAssignableFrom(property.PropertyType.GenericTypeArguments[0])
                 select property.PropertyType.GenericTypeArguments[0];
         }
+
         protected bool ShouldRegisterDefaultRepositoryFor(Type entityType)
         {
             var isTreeEntity = entityType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(EasyAbp.Abp.Trees.ITree<>));
