@@ -9,10 +9,10 @@ using Volo.Abp.Reflection;
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
 {
-    public class EfCoreTreeRepositoryRegister
+    public class EfCoreTreeRepositoryRegistrar
     {
         public AbpTreesRepositoryRegistrationOptions Options { get; }
-        public EfCoreTreeRepositoryRegister(AbpTreesRepositoryRegistrationOptions options)
+        public EfCoreTreeRepositoryRegistrar(AbpTreesRepositoryRegistrationOptions options)
         {
             Options = options;
         }

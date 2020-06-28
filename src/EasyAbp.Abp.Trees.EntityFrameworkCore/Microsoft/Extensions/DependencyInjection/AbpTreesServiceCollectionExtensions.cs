@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //TODO: Custom option action
             //optionsBuilder?.Invoke(options);
 
-            new EfCoreTreeRepositoryRegister(options).AddRepositories();
+            new EfCoreTreeRepositoryRegistrar(options).AddRepositories();
 
             return services;
         }
