@@ -6,8 +6,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>EasyAbp Team</Authors>
     <Description>An abp module that provides standard tree structure entity implement.</Description>
-    <PackageProjectUrl>https://github.com/EasyAbp/PrivateMessaging</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/EasyAbp/PrivateMessaging</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/EasyAbp/Abp.Trees</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EasyAbp/Abp.Trees</RepositoryUrl>
     <PackageTags>abp module easyabp tree</PackageTags>
     <Company>EasyAbp</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

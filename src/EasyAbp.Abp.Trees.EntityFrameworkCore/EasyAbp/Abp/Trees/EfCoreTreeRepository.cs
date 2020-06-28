@@ -19,19 +19,37 @@ namespace EasyAbp.Abp.Trees
         where TDbContext : IEfCoreDbContext
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
-        private readonly ITreeCodeGenerator _treeCodeGenerator;
-        private readonly IGuidGenerator _guidGenerator;
+        private ITreeCodeGenerator _treeCodeGenerator;
+        private IGuidGenerator _guidGenerator;
 
-        public EfCoreTreeRepository(
-            IDbContextProvider<TDbContext> dbContextProvider,
-            ITreeCodeGenerator treeCodeGenerator,
-            IGuidGenerator guidGenerator
-            )
-            : base(dbContextProvider)
+        protected ITreeCodeGenerator TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
+        protected IGuidGenerator GuidGenerator => LazyGetRequiredService(ref _guidGenerator);
+
+        #region ioc Lazy loading 
+        protected readonly object ServiceProviderLock = new object();
+        protected TService LazyGetRequiredService<TService>(ref TService reference)
+            => LazyGetRequiredService(typeof(TService), ref reference);
+
+        protected TRef LazyGetRequiredService<TRef>(Type serviceType, ref TRef reference)
         {
-            _treeCodeGenerator = treeCodeGenerator;
-            _guidGenerator = guidGenerator;
+            if (reference == null)
+            {
+                lock (ServiceProviderLock)
+                {
+                    if (reference == null)
+                    {
+                        reference = (TRef)ServiceProvider.GetRequiredService(serviceType);
+                    }
+                }
+            }
+
+            return reference;
         }
+        #endregion
+        //keep one param Constructor,for simplify Custom Repository
+        public EfCoreTreeRepository(
+            IDbContextProvider<TDbContext> dbContextProvider
+            ) : base(dbContextProvider) { }
         public override IQueryable<TEntity> WithDetails()
         {
             if (AbpEntityOptions.DefaultWithDetailsFunc == null)
@@ -86,7 +104,7 @@ namespace EasyAbp.Abp.Trees
         {
             if (entity.Id == Guid.Empty)
             {
-                EntityHelper.TrySetId(entity, () => _guidGenerator.Create());
+                EntityHelper.TrySetId(entity, () => GuidGenerator.Create());
             }
             var code = await GetNextChildCodeAsync(entity.ParentId, GetCancellationToken(cancellationToken));
             entity.SetCode(code);
@@ -124,7 +142,7 @@ namespace EasyAbp.Abp.Trees
             //Update Children Codes
             foreach (var child in children)
             {
-                var childCode = _treeCodeGenerator.Append(entity.Code, _treeCodeGenerator.GetRelative(child.Code, oldCode));
+                var childCode = TreeCodeGenerator.Append(entity.Code, TreeCodeGenerator.GetRelative(child.Code, oldCode));
                 child.SetCode(childCode);
             }
             await base.UpdateAsync(entity, autoSave, cancellationToken);
@@ -156,10 +174,10 @@ namespace EasyAbp.Abp.Trees
             if (lastChild == null)
             {
                 var parentCode = parentId != null ? await GetCodeAsync(parentId.Value) : null;
-                return _treeCodeGenerator.Append(parentCode, _treeCodeGenerator.Create(1));
+                return TreeCodeGenerator.Append(parentCode, TreeCodeGenerator.Create(1));
             }
 
-            return _treeCodeGenerator.Next(lastChild.Code);
+            return TreeCodeGenerator.Next(lastChild.Code);
         }
 
         protected virtual async Task TraverseTreeAsync(TEntity parent, ICollection<TEntity> children)
@@ -173,9 +191,9 @@ namespace EasyAbp.Abp.Trees
             {
                 if (c.Id == Guid.Empty)
                 {
-                    EntityHelper.TrySetId(c, () => _guidGenerator.Create());
+                    EntityHelper.TrySetId(c, () => GuidGenerator.Create());
                 }
-                var code = _treeCodeGenerator.Append(parent.Code, _treeCodeGenerator.Create(++index));
+                var code = TreeCodeGenerator.Append(parent.Code, TreeCodeGenerator.Create(++index));
                 c.SetCode(code);
                 TraverseTreeAction?.Invoke(c);
                 await TraverseTreeAsync(c, c.Children);
