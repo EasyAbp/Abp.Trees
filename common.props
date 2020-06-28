@@ -1,13 +1,13 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Version>0.290.3</Version>
+    <Version>0.290.4</Version>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>EasyAbp Team</Authors>
     <Description>An abp module that provides standard tree structure entity implement.</Description>
-    <PackageProjectUrl>https://github.com/EasyAbp/PrivateMessaging</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/EasyAbp/PrivateMessaging</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/EasyAbp/Abp.Trees</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EasyAbp/Abp.Trees</RepositoryUrl>
     <PackageTags>abp module easyabp tree</PackageTags>
     <Company>EasyAbp</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
