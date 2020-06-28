@@ -137,7 +137,7 @@ namespace EasyAbp.Abp.Trees
 
             foreach (var child in children)
             {
-                await base.DeleteAsync(child, autoSave, cancellationToken);
+                await DeleteAsync(child.Id, autoSave, cancellationToken);
             }
 
             await base.DeleteAsync(id, autoSave, cancellationToken);
