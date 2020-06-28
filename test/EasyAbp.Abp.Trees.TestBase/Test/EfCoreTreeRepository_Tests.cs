@@ -62,8 +62,23 @@ namespace EasyAbp.Abp.Trees.Test
             list.Count.ShouldBe(61);
             var afterInsertedRoot = list.Single(x => x.Id == root.Id);
             afterInsertedRoot.ShouldNotBeNull();
-            
         }
+        [Fact]
+        public async Task InsertTwoRoots()
+        {
+            var firstRoot = createTestData();
+            var secondRoot = createTestData();
+
+            await _repository.InsertAsync(firstRoot, true);
+            await _repository.InsertAsync(secondRoot, true);
+
+            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+
+            var roots = list.Where(x => x.ParentId == null).ToList();
+            roots.Count().ShouldBe(2);
+            roots[0].Code.ShouldNotBe(roots[1].Code);
+        }
+
         [Fact]
         public async Task UpdateWithMoveAsync()
         {

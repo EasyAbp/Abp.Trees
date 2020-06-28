@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Volo.Abp.DependencyInjection;
 
 namespace EasyAbp.Abp.Trees
 {
-    public class TreeCodeGenerator : Volo.Abp.DependencyInjection.ITransientDependency
+    public class TreeCodeGenerator : ISingletonDependency, ITreeCodeGenerator
     {
-        public const int CodeLength = 5;
+        public virtual int CodeLength { get; set; } = 5;
+
+        public virtual string Separator { get; set; } = ".";
 
         /// <summary>
         /// Creates code for given numbers.
         /// Example: if numbers are 4,2 then returns "00004.00002";
         /// </summary>
         /// <param name="numbers">Numbers</param>
-        public string CreateCode(params int[] numbers)
+        public string Create(params int[] numbers)
         {
             if (numbers.IsNullOrEmpty())
             {
                 return null;
             }
 
-            return numbers.Select(number => number.ToString(new string('0', CodeLength))).JoinAsString(".");
+            return numbers.Select(number => number.ToString(new string('0', CodeLength))).JoinAsString(Separator);
         }
 
         /// <summary>
@@ -30,7 +32,7 @@ namespace EasyAbp.Abp.Trees
         /// </summary>
         /// <param name="parentCode">Parent code. Can be null or empty if parent is a root.</param>
         /// <param name="childCode">Child code.</param>
-        public string AppendCode(string parentCode, string childCode)
+        public string Append(string parentCode, string childCode)
         {
             if (childCode.IsNullOrEmpty())
             {
@@ -42,7 +44,7 @@ namespace EasyAbp.Abp.Trees
                 return childCode;
             }
 
-            return parentCode + "." + childCode;
+            return parentCode + Separator + childCode;
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace EasyAbp.Abp.Trees
         /// </summary>
         /// <param name="code">The code.</param>
         /// <param name="parentCode">The parent code.</param>
-        public string GetRelativeCode(string code, string parentCode)
+        public string GetRelative(string code, string parentCode)
         {
             if (code.IsNullOrEmpty())
             {
@@ -68,7 +70,7 @@ namespace EasyAbp.Abp.Trees
                 return null;
             }
 
-            return code.Substring(parentCode.Length + 1);
+            return code.Substring(parentCode.Length + Separator.Length);
         }
 
         /// <summary>
@@ -76,17 +78,17 @@ namespace EasyAbp.Abp.Trees
         /// Example: if code = "00019.00055.00001" returns "00019.00055.00002".
         /// </summary>
         /// <param name="code">The code.</param>
-        public string CalculateNextCode(string code)
+        public string Next(string code)
         {
             if (code.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(code), "code can not be null or empty.");
             }
 
-            var parentCode = GetParentCode(code);
-            var lastUnitCode = GetLastCode(code);
+            var parentCode = GetParent(code);
+            var lastUnitCode = GetLast(code);
 
-            return AppendCode(parentCode, CreateCode(Convert.ToInt32(lastUnitCode) + 1));
+            return Append(parentCode, Create(Convert.ToInt32(lastUnitCode) + 1));
         }
 
         /// <summary>
@@ -94,15 +96,15 @@ namespace EasyAbp.Abp.Trees
         /// Example: if code = "00019.00055.00001" returns "00001".
         /// </summary>
         /// <param name="code">The code.</param>
-        private string GetLastCode(string code)
+        private string GetLast(string code)
         {
             if (code.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(code), "code can not be null or empty.");
             }
 
-            var splittedCode = code.Split('.');
-            return splittedCode[splittedCode.Length - 1];
+            var splittedCode = code.Split(Separator, StringSplitOptions.RemoveEmptyEntries);
+            return splittedCode.Last();
         }
 
         /// <summary>
@@ -110,20 +112,20 @@ namespace EasyAbp.Abp.Trees
         /// Example: if code = "00019.00055.00001" returns "00019.00055".
         /// </summary>
         /// <param name="code">The code.</param>
-        private string GetParentCode(string code)
+        private string GetParent(string code)
         {
             if (code.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(code), "code can not be null or empty.");
             }
 
-            var splittedCode = code.Split('.');
+            var splittedCode = code.Split(Separator);
             if (splittedCode.Length == 1)
             {
                 return null;
             }
 
-            return splittedCode.Take(splittedCode.Length - 1).JoinAsString(".");
+            return splittedCode.Take(splittedCode.Length - 1).JoinAsString(Separator);
         }
     }
 }

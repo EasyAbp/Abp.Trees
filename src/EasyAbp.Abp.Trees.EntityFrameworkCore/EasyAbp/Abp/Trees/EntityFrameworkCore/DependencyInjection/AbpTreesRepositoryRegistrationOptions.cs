@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore.DependencyInjection
 {
