@@ -53,7 +53,7 @@ namespace EasyAbp.Abp.Trees.Test
         }
 
         [Fact]
-        public async Task InsertWithChildAsync()
+        public async Task InsertWithChildTestAsync()
         {
             var root = createTestData();
 
@@ -64,7 +64,7 @@ namespace EasyAbp.Abp.Trees.Test
             afterInsertedRoot.ShouldNotBeNull();
         }
         [Fact]
-        public async Task InsertTwoRoots()
+        public async Task InsertTwoRootsTestAsync()
         {
             var firstRoot = createTestData();
             var secondRoot = createTestData();
@@ -80,7 +80,7 @@ namespace EasyAbp.Abp.Trees.Test
         }
 
         [Fact]
-        public async Task UpdateWithMoveAsync()
+        public async Task UpdateWithMoveTestAsync()
         {
             await WithUnitOfWorkAsync(async () =>
                  {
@@ -103,5 +103,22 @@ namespace EasyAbp.Abp.Trees.Test
 
                  });
         }
+
+        [Fact]
+        public async Task DeleteTestAsync()
+        {
+            var firstRoot = createTestData();
+            await _repository.InsertAsync(firstRoot, true);
+
+
+            var toDeleteNode = firstRoot.Children.FirstOrDefault();
+
+            await _repository.DeleteAsync(toDeleteNode);
+
+            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            list.Count().ShouldBe(55);
+        }
+
+
     }
 }

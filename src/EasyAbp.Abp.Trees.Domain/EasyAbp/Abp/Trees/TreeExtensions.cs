@@ -1,4 +1,6 @@
-﻿namespace EasyAbp.Abp.Trees
+﻿using System.Linq;
+
+namespace EasyAbp.Abp.Trees
 {
     public static class TreeExtensions
     {
@@ -18,5 +20,16 @@
             entity.Parent = parent;
             entity.ParentId = parent.Id;
         }
+
+        public static void ClearChildren<TEntity>(this ITree<TEntity> entity)
+            where TEntity : class, ITree<TEntity>
+        {
+            entity.Children.ToList().ForEach(child =>
+            {
+                child.ParentId = null;
+            });
+            entity.Children.Clear();
+        }
+
     }
 }

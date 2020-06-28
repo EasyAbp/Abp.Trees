@@ -131,16 +131,18 @@ namespace EasyAbp.Abp.Trees
             return entity;
         }
 
-        public async override Task DeleteAsync(Guid id, bool autoSave = false, CancellationToken cancellationToken = default)
+        public async override Task DeleteAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var children = await GetChildrenAsync(id, true, cancellationToken: GetCancellationToken(cancellationToken));
+            entity.ClearChildren();
+
+            var children = await GetChildrenAsync(entity.Id, true, cancellationToken: GetCancellationToken(cancellationToken));
 
             foreach (var child in children)
             {
-                await DeleteAsync(child.Id, autoSave, cancellationToken);
+                await DeleteAsync(child, autoSave, cancellationToken);
             }
 
-            await base.DeleteAsync(id, autoSave, cancellationToken);
+            await base.DeleteAsync(entity, autoSave, cancellationToken);
         }
 
         protected virtual async Task<string> GetNextChildCodeAsync(Guid? parentId, CancellationToken cancellationToken = default)
