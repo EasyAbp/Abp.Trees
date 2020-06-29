@@ -30,11 +30,12 @@ An abp module that provides standard tree structure entity implement.
 
 * `UpdateAsync` :Auto Move node when update a `Entity` that parentId is modified
 
-* `UpdateAsync` :Also delete `Children` nodes 
+* `DeleteAsync` :Also delete `Children` nodes 
 
 You have two ways to use this `Repository`
 
-* Way 1 : Default Repository(`ITreeRepository<>`), Add `context.Services.AddTreeRepository<MyProjectNameDbContext>();` to ConfigureServices method in `MyProjectNameEntityFrameworkCoreModule.cs`.
+* Way 1 : Default Repository(`ITreeRepository<>`),  
+  Add `context.Services.AddTreeRepository<MyProjectNameDbContext>();` to ConfigureServices method in `MyProjectNameEntityFrameworkCoreModule.cs`.
 * Way 2 : Create a `CustomRepository` that base on `EfCoreTreeRepository<TDbContext, TEntity>`
 
 ## Sample
