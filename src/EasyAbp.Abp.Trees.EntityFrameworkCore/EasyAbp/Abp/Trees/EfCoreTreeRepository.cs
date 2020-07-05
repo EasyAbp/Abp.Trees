@@ -25,8 +25,10 @@ namespace EasyAbp.Abp.Trees
         protected ITreeCodeGenerator TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
         protected IGuidGenerator GuidGenerator => LazyGetRequiredService(ref _guidGenerator);
 
-        #region ioc Lazy loading 
+        #region ioc Lazy loading
+
         protected readonly object ServiceProviderLock = new object();
+
         protected TService LazyGetRequiredService<TService>(ref TService reference)
             => LazyGetRequiredService(typeof(TService), ref reference);
 
@@ -45,11 +47,14 @@ namespace EasyAbp.Abp.Trees
 
             return reference;
         }
-        #endregion
+
+        #endregion ioc Lazy loading
+
         //keep one param Constructor,for simplify Custom Repository
         public EfCoreTreeRepository(
             IDbContextProvider<TDbContext> dbContextProvider
             ) : base(dbContextProvider) { }
+
         public override IQueryable<TEntity> WithDetails()
         {
             if (AbpEntityOptions.DefaultWithDetailsFunc == null)
@@ -91,7 +96,6 @@ namespace EasyAbp.Abp.Trees
                     .Where(x => x.Code.StartsWith(code) && x.Id != parentId.Value)
                     .OrderBy(x => x.Code)
                     .ToListAsync(GetCancellationToken(cancellationToken));
-
         }
 
         protected virtual async Task<string> GetCodeAsync(Guid id, CancellationToken cancellationToken = default)
@@ -123,11 +127,12 @@ namespace EasyAbp.Abp.Trees
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             var oldEntity = await this.FindAsync(entity.Id, cancellationToken: cancellationToken);
-            if (oldEntity.ParentId == entity.Id)
+            if (oldEntity.ParentId == entity.ParentId)
             {
                 await base.UpdateAsync(entity, autoSave, cancellationToken);
                 return entity;
             }
+            //do move
             var parentId = entity.ParentId;
             //Should find children before Code change
             var children = await GetChildrenAsync(entity.Id, true, cancellationToken: GetCancellationToken(cancellationToken));
@@ -198,7 +203,6 @@ namespace EasyAbp.Abp.Trees
                 TraverseTreeAction?.Invoke(c);
                 await TraverseTreeAsync(c, c.Children);
             }
-
         }
 
         protected virtual Action<TEntity> TraverseTreeAction
@@ -209,7 +213,6 @@ namespace EasyAbp.Abp.Trees
         //todo: move to Management or SubClass
         protected virtual async Task ValidateEntityAsync(TEntity entity)
         {
-
             var siblings = (await GetChildrenAsync(entity.ParentId))
                 .Where(ou => ou.Id != entity.Id)
                 .ToList();
