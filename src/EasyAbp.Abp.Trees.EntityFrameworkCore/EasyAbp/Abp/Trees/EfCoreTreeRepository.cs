@@ -19,10 +19,10 @@ namespace EasyAbp.Abp.Trees
         where TDbContext : IEfCoreDbContext
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
-        private ITreeCodeGenerator _treeCodeGenerator;
+        private ITreeCodeGenerator<TEntity> _treeCodeGenerator;
         private IGuidGenerator _guidGenerator;
 
-        protected ITreeCodeGenerator TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
+        protected ITreeCodeGenerator<TEntity> TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
         protected IGuidGenerator GuidGenerator => LazyGetRequiredService(ref _guidGenerator);
 
         #region ioc Lazy loading

@@ -1,29 +1,35 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Volo.Abp.DependencyInjection;
 
 namespace EasyAbp.Abp.Trees
 {
-    public class TreeCodeGenerator : ISingletonDependency, ITreeCodeGenerator
+    public class TreeCodeGenerator<TEntity> : ISingletonDependency, ITreeCodeGenerator<TEntity>
+        where TEntity : class, ITree<TEntity>
     {
-        public virtual int CodeLength { get; set; } = 5;
+        private readonly TreeOptions _treeOptions;
 
         public virtual string Separator { get; set; } = ".";
 
+        public TreeCodeGenerator(IOptions<TreeOptions> treeOption)
+        {
+            _treeOptions = treeOption.Value;
+        }
         /// <summary>
         /// Creates code for given numbers.
         /// Example: if numbers are 4,2 then returns "00004.00002";
         /// </summary>
-        /// <param name="numbers">Numbers</param>
+        /// <param name="numbers">Numbers</param>        
         public string Create(params int[] numbers)
         {
             if (numbers.IsNullOrEmpty())
             {
                 return null;
             }
-
-            return numbers.Select(number => number.ToString(new string('0', CodeLength))).JoinAsString(Separator);
+            var codeLength = (this._treeOptions.GetOrNull<TEntity>() ?? TreeOptions<TEntity>.Empty).CodeLength;
+            return numbers.Select(number => number.ToString(new string('0', codeLength))).JoinAsString(Separator);
         }
 
         /// <summary>
