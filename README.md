@@ -38,6 +38,16 @@ You have two ways to use this `Repository`
   Add `context.Services.AddTreeRepository<MyProjectNameDbContext>();` to ConfigureServices method in `MyProjectNameEntityFrameworkCoreModule.cs`.
 * Way 2 : Create a `CustomRepository` that base on `EfCoreTreeRepository<TDbContext, TEntity>`
 
+* Example:
+```charp
+            context.Services.AddAbpDbContext<TestDbContext>(options =>
+            {
+                options.AddDefaultRepositories(includeAllEntities: true);//add Abp's `IRepository<TEntity>`
+                options.AddDefaultTreeRepositories();//add `ITreeRepository<TEntity>` for all Entity with implement `ITree<TEntity>`
+                options.TreeEntity<Resource>(x => x.CodeLength = 10);//set CodeLength for each Entity(Default:5)
+            });
+```
+
 ## Sample
 It works fine with `Volo.Abp.Application.Services.CrudAppService`.
 Just like `strategy pattern` to Replace `IRepository<>` with `ITreeRepository<Domain.OrganizationUnit>`,
