@@ -8,6 +8,7 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
     public class TestDbContext : AbpDbContext<TestDbContext>
     {
         public DbSet<OrganizationUnit> OrganizationUnits { get; set; }
+        public DbSet<Resource> Resources { get; set; }
         public TestDbContext(DbContextOptions<TestDbContext> options) 
             : base(options)
         {
@@ -18,6 +19,11 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
             base.OnModelCreating(builder);
 
             builder.Entity<OrganizationUnit>(b =>
+            {
+                b.TryConfigureExtraProperties();
+                b.TryConfigureConcurrencyStamp();
+            });
+            builder.Entity<Resource>(b =>
             {
                 b.TryConfigureExtraProperties();
                 b.TryConfigureConcurrencyStamp();

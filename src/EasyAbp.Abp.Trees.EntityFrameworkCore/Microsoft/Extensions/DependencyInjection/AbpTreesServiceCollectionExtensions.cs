@@ -12,10 +12,12 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services)
             where TDbContext : AbpDbContext<TDbContext>
         {
-            var options = new AbpTreesRepositoryRegistrationOptions(typeof(TDbContext), services);
-
-            //TODO: Custom option action
-            //optionsBuilder?.Invoke(options);
+            return AddTreeRepository(services, typeof(TDbContext));
+        }
+        public static IServiceCollection AddTreeRepository(
+            this IServiceCollection services,Type dbContextType)
+        {
+            var options = new AbpTreesRepositoryRegistrationOptions(dbContextType, services);
 
             new EfCoreTreeRepositoryRegistrar(options).AddRepositories();
 

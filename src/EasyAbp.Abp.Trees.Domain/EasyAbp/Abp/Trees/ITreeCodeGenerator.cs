@@ -1,9 +1,10 @@
-﻿namespace EasyAbp.Abp.Trees
-{
-    public interface ITreeCodeGenerator
-    {
-        int CodeLength { get; set; }
+﻿using System;
 
+namespace EasyAbp.Abp.Trees
+{
+    public interface ITreeCodeGenerator<TEntity>
+        where TEntity : class, ITree<TEntity>
+    {
         string Separator { get; set; }
 
         /// <summary>

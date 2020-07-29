@@ -17,11 +17,13 @@ namespace EasyAbp.Abp.Trees.Test
     public abstract class EfCoreTreeRepository_Tests<TStartupModule> : TreesTestBase<TStartupModule>
         where TStartupModule : IAbpModule
     {
-        private readonly ITreeRepository<OrganizationUnit> _repository;
+        private readonly ITreeRepository<OrganizationUnit> _organizationUnitRepository;
+        private readonly ITreeRepository<Resource> _resourceRepository;
         private readonly IGuidGenerator _guidGenerator;
         protected EfCoreTreeRepository_Tests()
         {
-            _repository = GetRequiredService<ITreeRepository<OrganizationUnit>>();
+            _organizationUnitRepository = GetRequiredService<ITreeRepository<OrganizationUnit>>();
+            _resourceRepository = GetRequiredService<ITreeRepository<Resource>>();
             _guidGenerator = GetRequiredService<IGuidGenerator>();
 
         }
@@ -57,11 +59,22 @@ namespace EasyAbp.Abp.Trees.Test
         {
             var root = createTestData();
 
-            await _repository.InsertAsync(root, true);
-            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            await _organizationUnitRepository.InsertAsync(root, true);
+            var list = (await _organizationUnitRepository.GetListAsync()).OrderBy(x => x.Code).ToList();
             list.Count.ShouldBe(61);
             var afterInsertedRoot = list.Single(x => x.Id == root.Id);
             afterInsertedRoot.ShouldNotBeNull();
+        }
+        [Fact]
+        public async Task InsertBigCodeLengthTestAsync()
+        {
+            var rootId = _guidGenerator.Create();
+            var root = new Resource(rootId) { DisplayName = "Root" };
+
+            await _resourceRepository.InsertAsync(root, true);
+            var list = (await _resourceRepository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            var afterInsertedRoot = list.Single(x => x.Id == root.Id);
+            afterInsertedRoot.Code.Length.ShouldBe(10);
         }
         [Fact]
         public async Task InsertTwoRootsTestAsync()
@@ -69,10 +82,10 @@ namespace EasyAbp.Abp.Trees.Test
             var firstRoot = createTestData();
             var secondRoot = createTestData();
 
-            await _repository.InsertAsync(firstRoot, true);
-            await _repository.InsertAsync(secondRoot, true);
+            await _organizationUnitRepository.InsertAsync(firstRoot, true);
+            await _organizationUnitRepository.InsertAsync(secondRoot, true);
 
-            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            var list = (await _organizationUnitRepository.GetListAsync()).OrderBy(x => x.Code).ToList();
 
             var roots = list.Where(x => x.ParentId == null).ToList();
             roots.Count().ShouldBe(2);
@@ -85,17 +98,17 @@ namespace EasyAbp.Abp.Trees.Test
             await WithUnitOfWorkAsync(async () =>
                  {
                      var root = createTestData();
-                     await _repository.InsertAsync(root, true);
+                     await _organizationUnitRepository.InsertAsync(root, true);
 
-                     var afterInsertedRoot = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList().Single(x => x.Id == root.Id);
+                     var afterInsertedRoot = (await _organizationUnitRepository.GetListAsync()).OrderBy(x => x.Code).ToList().Single(x => x.Id == root.Id);
 
                      var source = afterInsertedRoot.Children.FirstOrDefault();
                      var target = afterInsertedRoot.Children.LastOrDefault().Children.FirstOrDefault();
                      source.MoveTo(target);
 
 
-                     await _repository.UpdateAsync(source, true);
-                     var afterUpdatedRoot = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList().Single(x => x.Id == root.Id);
+                     await _organizationUnitRepository.UpdateAsync(source, true);
+                     var afterUpdatedRoot = (await _organizationUnitRepository.GetListAsync()).OrderBy(x => x.Code).ToList().Single(x => x.Id == root.Id);
 
 
                      afterUpdatedRoot.Children.Count.ShouldBe(9);
@@ -108,14 +121,14 @@ namespace EasyAbp.Abp.Trees.Test
         public async Task DeleteTestAsync()
         {
             var firstRoot = createTestData();
-            await _repository.InsertAsync(firstRoot, true);
+            await _organizationUnitRepository.InsertAsync(firstRoot, true);
 
 
             var toDeleteNode = firstRoot.Children.FirstOrDefault();
 
-            await _repository.DeleteAsync(toDeleteNode);
+            await _organizationUnitRepository.DeleteAsync(toDeleteNode);
 
-            var list = (await _repository.GetListAsync()).OrderBy(x => x.Code).ToList();
+            var list = (await _organizationUnitRepository.GetListAsync()).OrderBy(x => x.Code).ToList();
             list.Count().ShouldBe(55);
         }
 
