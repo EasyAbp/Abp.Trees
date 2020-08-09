@@ -126,7 +126,8 @@ namespace EasyAbp.Abp.Trees
         //todo: not allow modify children
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var oldEntity = await this.FindAsync(entity.Id, cancellationToken: cancellationToken);
+            var oldEntity = await this.AsNoTracking().Where(x => x.Id == entity.Id).SingleOrDefaultAsync(cancellationToken);
+
             if (oldEntity.ParentId == entity.ParentId)
             {
                 await base.UpdateAsync(entity, autoSave, cancellationToken);
