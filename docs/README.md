@@ -39,7 +39,7 @@ You have two ways to use this `Repository`
 * Way 2 : Create a `CustomRepository` that base on `EfCoreTreeRepository<TDbContext, TEntity>`
 
 * Example:
-```charp
+```csharp
             context.Services.AddAbpDbContext<TestDbContext>(options =>
             {
                 options.AddDefaultRepositories(includeAllEntities: true);//add Abp's `IRepository<TEntity>`
