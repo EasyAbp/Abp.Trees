@@ -4,11 +4,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace></RootNamespace>
+    <RootNamespace />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.Ddd.Domain" Version="4.0.2" />
+    <PackageReference Include="Volo.Abp.Ddd.Domain" Version="$(AbpVersion)" />
     <ProjectReference Include="..\EasyAbp.Abp.Trees.Domain.Shared\EasyAbp.Abp.Trees.Domain.Shared.csproj" />
   </ItemGroup>
 
