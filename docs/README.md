@@ -9,11 +9,13 @@ An abp module that provides standard tree structure entity implement.
 
 ## Installation
 
-1. Install the following NuGet packages. ([see how](https://github.com/EasyAbp/EasyAbpGuide/blob/master/How-To.md#add-nuget-packages))
+1. Install the following NuGet packages. ([see how](https://github.com/EasyAbp/EasyAbpGuide/blob/master/Hocs/ow-To.md#add-nuget-packages))
 
     * EasyAbp.Abp.Trees.Domain
     * EasyAbp.Abp.Trees.Domain.Shared
     * EasyAbp.Abp.Trees.EntityFrameworkCore
+
+1. Add `DependsOn(typeof(AbpTreesXxxModule))` attribute to configure the module dependencies. ([see how](https://github.com/EasyAbp/EasyAbpGuide/blob/master/docs/How-To.md#add-module-dependencies))
 
 ## Usage
 
