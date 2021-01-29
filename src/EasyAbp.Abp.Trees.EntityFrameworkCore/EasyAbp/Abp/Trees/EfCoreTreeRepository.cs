@@ -1,7 +1,6 @@
 ﻿using EasyAbp.Abp.Trees.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,72 +9,51 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.Guids;
 
 namespace EasyAbp.Abp.Trees
 {
+    public static class EfCoreTreeQueryableExtensions
+    {
+        public static IQueryable<TEntity> IncludeDetails<TEntity>(this IQueryable<TEntity> queryable, bool include = true)
+            where TEntity : class, ITree<TEntity>
+        {
+            if (!include)
+            {
+                return queryable;
+            }
+            return queryable
+                .Include(x => x.Children);
+        }
+    }
     public class EfCoreTreeRepository<TDbContext, TEntity> : EfCoreRepository<TDbContext, TEntity, Guid>,
         ITreeRepository<TEntity>
         where TDbContext : IEfCoreDbContext
         where TEntity : class, IEntity<Guid>, ITree<TEntity>
     {
-        private ITreeCodeGenerator<TEntity> _treeCodeGenerator;
+        protected ITreeCodeGenerator<TEntity> TreeCodeGenerator => this.LazyServiceProvider.LazyGetRequiredService<ITreeCodeGenerator<TEntity>>();
 
-        protected ITreeCodeGenerator<TEntity> TreeCodeGenerator => LazyGetRequiredService(ref _treeCodeGenerator);
-
-        #region ioc Lazy loading
-
-        protected readonly object ServiceProviderLock = new object();
-
-        protected TService LazyGetRequiredService<TService>(ref TService reference)
-            => LazyGetRequiredService(typeof(TService), ref reference);
-
-        protected TRef LazyGetRequiredService<TRef>(Type serviceType, ref TRef reference)
-        {
-            if (reference == null)
-            {
-                lock (ServiceProviderLock)
-                {
-                    if (reference == null)
-                    {
-                        reference = (TRef)ServiceProvider.GetRequiredService(serviceType);
-                    }
-                }
-            }
-
-            return reference;
-        }
-
-        #endregion ioc Lazy loading
-
-        //keep one param Constructor,for simplify Custom Repository
         public EfCoreTreeRepository(
             IDbContextProvider<TDbContext> dbContextProvider
             ) : base(dbContextProvider) { }
 
-        public override IQueryable<TEntity> WithDetails()
+        public override async Task<IQueryable<TEntity>> WithDetailsAsync()
         {
             if (AbpEntityOptions.DefaultWithDetailsFunc == null)
             {
-                return GetQueryable().Include(x => x.Children);
+                return (await GetQueryableAsync()).IncludeDetails(true);
             }
 
-            return AbpEntityOptions.DefaultWithDetailsFunc(GetQueryable().Include(x => x.Children));
+            return AbpEntityOptions.DefaultWithDetailsFunc((await GetQueryableAsync()).IncludeDetails(true));
         }
 
         public async Task<List<TEntity>> GetChildrenAsync(Guid? parentId, bool includeDetails = true, bool recursive = false, CancellationToken cancellationToken = default)
         {
             if (!recursive)
             {
-                return includeDetails
-                    ? await WithDetails()
-                        .Where(x => x.ParentId == parentId)
-                        .OrderBy(x => x.Code)
-                        .ToListAsync(GetCancellationToken(cancellationToken))
-                    : await GetQueryable()
-                        .Where(x => x.ParentId == parentId)
-                        .OrderBy(x => x.Code)
-                        .ToListAsync(GetCancellationToken(cancellationToken));
+                return await (await GetQueryableAsync()).IncludeDetails(includeDetails)
+                    .Where(x => x.ParentId == parentId)
+                    .OrderBy(x => x.Code)
+                    .ToListAsync(GetCancellationToken(cancellationToken));
             }
 
             if (!parentId.HasValue)
@@ -85,12 +63,7 @@ namespace EasyAbp.Abp.Trees
 
             var code = await GetCodeAsync(parentId.Value, GetCancellationToken(cancellationToken));
 
-            return includeDetails
-                ? await WithDetails()
-                    .Where(x => x.Code.StartsWith(code) && x.Id != parentId.Value)
-                    .OrderBy(x => x.Code)
-                    .ToListAsync(GetCancellationToken(cancellationToken))
-                : await GetQueryable()
+            return await (await GetQueryableAsync()).IncludeDetails(includeDetails)
                     .Where(x => x.Code.StartsWith(code) && x.Id != parentId.Value)
                     .OrderBy(x => x.Code)
                     .ToListAsync(GetCancellationToken(cancellationToken));
@@ -115,7 +88,7 @@ namespace EasyAbp.Abp.Trees
             entity = await base.InsertAsync(entity, autoSave, cancellationToken);
             if (autoSave)
             {
-                await DbContext.SaveChangesAsync();
+                await (await GetDbContextAsync()).SaveChangesAsync();
             }
 
             return entity;
@@ -207,19 +180,6 @@ namespace EasyAbp.Abp.Trees
         protected virtual Action<TEntity> TraverseTreeAction
         {
             get { return (x) => { }; }
-        }
-
-        //todo: move to Management or SubClass
-        protected virtual async Task ValidateEntityAsync(TEntity entity)
-        {
-            var siblings = (await GetChildrenAsync(entity.ParentId))
-                .Where(ou => ou.Id != entity.Id)
-                .ToList();
-
-            if (siblings.Any(ou => ou.DisplayName == entity.DisplayName))
-            {
-                throw new DuplicateDisplayNameException();
-            }
         }
     }
 }
