@@ -19,10 +19,13 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
+            context.Services.AddTreeRepository<TestDbContext>();
+
             context.Services.AddAbpDbContext<TestDbContext>(options =>
             {
                 options.AddDefaultRepositories(includeAllEntities: true);
-                options.AddDefaultTreeRepositories();
+                //options.AddDefaultRepositories<TestDbContext>().SetDefaultRepositoryClasses()
+                //options.AddDefaultTreeRepositories();
                 options.TreeEntity<Resource>(x => x.CodeLength = 10);
             });
 
