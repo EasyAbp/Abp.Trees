@@ -74,24 +74,26 @@ namespace EasyAbp.Abp.Trees
             return (await base.GetAsync(id)).Code;
         }
 
-        //to be inserted node will get code by db. and children nodes will be asseted by parent(if autoSave==false,modify code of children will error after insert)
         public async override Task<TEntity> InsertAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            if (entity.Id == Guid.Empty)
-            {
-                EntityHelper.TrySetId(entity, () => GuidGenerator.Create());
-            }
+            CheckAndSetId(entity);
+
             var code = await GetNextChildCodeAsync(entity.ParentId, GetCancellationToken(cancellationToken));
+
             entity.SetCode(code);
+
             await TraverseTreeAsync(entity, entity.Children);
 
-            entity = await base.InsertAsync(entity, autoSave, cancellationToken);
-            if (autoSave)
-            {
-                await (await GetDbContextAsync()).SaveChangesAsync();
-            }
+            return await base.InsertAsync(entity, autoSave, cancellationToken);
+        }
+        public override async Task InsertManyAsync(IEnumerable<TEntity> entities, bool autoSave = false, CancellationToken cancellationToken = default)
+        {
+            var entityArray = entities.ToArray();
 
-            return entity;
+            foreach (var entity in entityArray)
+            {
+                await InsertAsync(entity, autoSave, cancellationToken);
+            }
         }
 
         //todo: not allow modify children
@@ -142,11 +144,20 @@ namespace EasyAbp.Abp.Trees
 
         protected virtual async Task<string> GetNextChildCodeAsync(Guid? parentId, CancellationToken cancellationToken = default)
         {
+            var dbContext = await GetDbContextAsync();
+
+            var localChildren = dbContext.Set<TEntity>().Local
+                .Where(x => x.ParentId == parentId)
+                .Where(x => dbContext.Entry(x).State == EntityState.Added);
+
             var children = await GetChildrenAsync(
                 parentId,
                 false,
                 false,
                 GetCancellationToken(cancellationToken));
+
+            children.AddRange(localChildren);
+
             var lastChild = children.LastOrDefault();
             if (lastChild == null)
             {
