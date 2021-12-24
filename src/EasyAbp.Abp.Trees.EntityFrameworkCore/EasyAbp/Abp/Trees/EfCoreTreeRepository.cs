@@ -50,7 +50,8 @@ namespace EasyAbp.Abp.Trees
         {
             if (!recursive)
             {
-                return await (await GetQueryableAsync()).IncludeDetails(includeDetails)
+
+                return await (await WithDetailsAsync())
                     .Where(x => x.ParentId == parentId)
                     .OrderBy(x => x.Code)
                     .ToListAsync(GetCancellationToken(cancellationToken));
@@ -58,7 +59,7 @@ namespace EasyAbp.Abp.Trees
 
             if (!parentId.HasValue)
             {
-                return await this.ToListAsync(GetCancellationToken(cancellationToken));
+                return await (await this.GetQueryableAsync()).ToListAsync(GetCancellationToken(cancellationToken));
             }
 
             var code = await GetCodeAsync(parentId.Value, GetCancellationToken(cancellationToken));
@@ -99,7 +100,7 @@ namespace EasyAbp.Abp.Trees
         //todo: not allow modify children
         public async override Task<TEntity> UpdateAsync(TEntity entity, bool autoSave = false, CancellationToken cancellationToken = default)
         {
-            var oldEntity = await this.AsNoTracking().Where(x => x.Id == entity.Id).SingleOrDefaultAsync(cancellationToken);
+            var oldEntity = await (await this.GetQueryableAsync()).AsNoTracking().Where(x => x.Id == entity.Id).SingleOrDefaultAsync(cancellationToken);
 
             if (oldEntity.ParentId == entity.ParentId)
             {
