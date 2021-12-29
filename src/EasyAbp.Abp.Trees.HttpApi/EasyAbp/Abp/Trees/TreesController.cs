@@ -1,9 +1,11 @@
 ﻿using EasyAbp.Abp.Trees.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc;
 
 namespace EasyAbp.Abp.Trees
 {
-    public abstract class TreesController : AbpController
+    [Area(AbpTreesRemoteServiceConsts.ModuleName)]
+    public abstract class TreesController : AbpControllerBase
     {
         protected TreesController()
         {

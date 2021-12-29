@@ -6,7 +6,7 @@
   <PropertyGroup>
 
     <!-- All Microsoft packages -->
-    <MicrosoftPackageVersion>6.0.0</MicrosoftPackageVersion>
+    <MicrosoftPackageVersion>6.0.*</MicrosoftPackageVersion>
 
     <!-- Microsoft.NET.Test.Sdk https://www.nuget.org/packages/Microsoft.NET.Test.Sdk -->
     <MicrosoftNETTestSdkPackageVersion>16.11.0</MicrosoftNETTestSdkPackageVersion>
@@ -46,11 +46,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />
-    <PackageReference Include="Fody" Version="6.5.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>
