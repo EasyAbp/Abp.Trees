@@ -1,12 +1,9 @@
 <Project>
   <PropertyGroup>
-    <AbpVersion>6.0.1</AbpVersion>
+    <AbpVersion>7.0.0</AbpVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-
-    <!-- All Microsoft packages -->
-    <MicrosoftPackageVersion>6.0.*</MicrosoftPackageVersion>
 
     <!-- Microsoft.NET.Test.Sdk https://www.nuget.org/packages/Microsoft.NET.Test.Sdk -->
     <MicrosoftNETTestSdkPackageVersion>16.11.0</MicrosoftNETTestSdkPackageVersion>
