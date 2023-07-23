@@ -1,4 +1,5 @@
-﻿using Volo.Abp.Modularity;
+﻿using Volo.Abp.Domain;
+using Volo.Abp.Modularity;
 using Volo.Abp.Localization;
 using EasyAbp.Abp.Trees.Localization;
 using Volo.Abp.Localization.ExceptionHandling;
@@ -9,7 +10,8 @@ using Volo.Abp.Validation.Localization;
 namespace EasyAbp.Abp.Trees
 {
     [DependsOn(
-        typeof(AbpValidationModule)
+        typeof(AbpValidationModule),
+        typeof(AbpDddDomainSharedModule)
     )]
     public class AbpTreesDomainSharedModule : AbpModule
     {
