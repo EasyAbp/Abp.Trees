@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Guids;
 using Xunit;
 
 namespace EasyAbp.Abp.Trees.Samples
@@ -11,9 +12,11 @@ namespace EasyAbp.Abp.Trees.Samples
     public class TreeRepository_Tests : TreesDomainTestBase
     {
         private readonly ITreeRepository<OrganizationUnit> _treeRepository;
+        private readonly IGuidGenerator _guidGenerator;
         public TreeRepository_Tests()
         {
             _treeRepository = GetRequiredService<ITreeRepository<OrganizationUnit>>();
+            _guidGenerator = GetRequiredService<IGuidGenerator>();
         }
 
         [Fact]
@@ -23,8 +26,8 @@ namespace EasyAbp.Abp.Trees.Samples
             {
                 List<OrganizationUnit> testDatas = new List<OrganizationUnit>()
                 {
-                    new OrganizationUnit(){DisplayName="1" },
-                    new OrganizationUnit(){DisplayName="2" }
+                    new OrganizationUnit(_guidGenerator.Create()){DisplayName="1" },
+                    new OrganizationUnit(_guidGenerator.Create()){DisplayName="2" }
                 };
                 foreach (var d in testDatas)
                 {
@@ -48,8 +51,8 @@ namespace EasyAbp.Abp.Trees.Samples
             {
                 List<OrganizationUnit> testDatas = new List<OrganizationUnit>()
                 {
-                    new OrganizationUnit(){DisplayName="1" },
-                    new OrganizationUnit(){DisplayName="2" }
+                    new OrganizationUnit(_guidGenerator.Create()){DisplayName="1" },
+                    new OrganizationUnit(_guidGenerator.Create()){DisplayName="2" }
                 };
 
                 await _treeRepository.InsertManyAsync(testDatas);
