@@ -47,6 +47,17 @@ An abp module that provides standard tree structure entity implement.
 		options.TreeEntity<Resource>(x => x.CodeLength = 10);//set CodeLength for each Entity(Default:5)
 	});
 	```
+## CheckPoints
+
+1.Check the module `DependsOn(typeof(AbpTreesXxxModule))`  dependencies are config
+
+`XxxEntityFrameworkCoreModule`, `XxxDomainSharedModule`, `XxxDomainModule`
+
+2.Check `IYourRepository : ITreeRepository<YourEntity>`
+
+3.Be sure `YourEntity:XxxEntity<Guid>,ITree<YourEntity>`
+
+4.Be sure `XxxEntityFrameworkCoreModule` has config  `options.AddDefaultTreeRepositories();`
 
 ## Sample
 

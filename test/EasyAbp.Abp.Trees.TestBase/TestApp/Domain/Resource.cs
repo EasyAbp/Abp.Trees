@@ -12,12 +12,11 @@ namespace EasyAbp.Abp.Trees.TestApp.Domain
         {
             Children = new List<Resource>();
         }
-        public string DisplayName { get; set; }
-        public virtual string Code { get; set; }
+        public string DisplayName { get; set; } = null!;
+        public virtual string Code { get; set; } = null!;
         public virtual int Level { get; set; }
-        public virtual Resource Parent { get; set; }
+        public virtual Resource? Parent { get; set; }
         public virtual Guid? ParentId { get; set; }
         public virtual ICollection<Resource> Children { get; set; }
-        public virtual string Path { get; set; }
     }
 }

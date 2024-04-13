@@ -10,7 +10,7 @@ namespace EasyAbp.Abp.Trees
         string Code { get; set; }
         int Level { get; set; }
         Guid? ParentId { get; set; }
-        TEntity Parent { get; set; }
+        TEntity? Parent { get; set; }
         ICollection<TEntity> Children { get; set; }
         string DisplayName { get; set; }
     }
