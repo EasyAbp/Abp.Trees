@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 using EasyAbp.Abp.Trees.TestApp.Domain;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.EntityFrameworkCore.Sqlite;
 
 namespace EasyAbp.Abp.Trees.EntityFrameworkCore
 {
