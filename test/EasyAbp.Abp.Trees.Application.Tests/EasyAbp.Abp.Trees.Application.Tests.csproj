@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EasyAbp.Abp.Trees.Application\EasyAbp.Abp.Trees.Application.csproj" />
     <ProjectReference Include="..\EasyAbp.Abp.Trees.Domain.Tests\EasyAbp.Abp.Trees.Domain.Tests.csproj" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
   </ItemGroup>
 
 </Project>
