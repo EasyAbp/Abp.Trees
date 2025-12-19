@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <AbpVersion>9.3.3</AbpVersion>
+    <AbpVersion>10.0.1</AbpVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">

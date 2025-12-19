@@ -8,6 +8,7 @@ namespace EasyAbp.Abp.Trees
         protected TreesAppService()
         {
             LocalizationResource = typeof(TreesResource);
+            ObjectMapperContext = typeof(AbpTreesApplicationModule);
         }
     }
 }
