@@ -18,6 +18,11 @@ namespace EasyAbp.Abp.Trees.EntityFrameworkCore
         )]
     public class TreesEntityFrameworkCoreTestModule : AbpModule
     {
+        public override void PreConfigureServices(ServiceConfigurationContext context)
+        {
+            PreConfigure<AbpSqliteOptions>(options => { options.BusyTimeout = null; });
+        }
+
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             context.Services.AddTreeRepository<TestDbContext>();
