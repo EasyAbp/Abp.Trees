@@ -1,4 +1,4 @@
-﻿using Volo.Abp.AutoMapper;
+using Volo.Abp.Mapperly;
 using Volo.Abp.Modularity;
 using Volo.Abp.Application;
 
@@ -8,16 +8,9 @@ namespace EasyAbp.Abp.Trees
         typeof(AbpTreesDomainModule),
         typeof(AbpTreesApplicationContractsModule),
         typeof(AbpDddApplicationModule),
-        typeof(AbpAutoMapperModule)
+        typeof(AbpMapperlyModule)
         )]
     public class AbpTreesApplicationModule : AbpModule
     {
-        public override void ConfigureServices(ServiceConfigurationContext context)
-        {
-            Configure<AbpAutoMapperOptions>(options =>
-            {
-                options.AddMaps<AbpTreesApplicationModule>(validate: true);
-            });
-        }
     }
 }
